@@ -12,7 +12,6 @@ pip install -r requirements.txt
 ```
 
 ## Run in Development Mode
-
 ```
 cd rokwire-building-blocks-api
 export FLASK_APP=loggingservice
@@ -33,7 +32,6 @@ If you need to edit config.py where you have to specify mongo database name and 
 LOGGING_DB_NAME="loggingdb"
 LOGGING_COLL_NAME="logs"
 ```
-
 
 ## Sample Logs for Post Endpoint:
 

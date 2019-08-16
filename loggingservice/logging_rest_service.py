@@ -3,13 +3,16 @@ import flask
 
 from .db import get_db
 from .config import LOGGING_COLL_NAME
-from flask import Blueprint, request, make_response, abort, Flask
+from flask import Blueprint, request, make_response, abort, current_app
 
 logging.basicConfig(format='%(asctime)-15s %(levelname)-7s [%(threadName)-10s] : %(name)s - %(message)s',
                     level=logging.INFO)
 __logger = logging.getLogger("loggingservice")
 
-bp = Blueprint('logging_rest_service', __name__, url_prefix='/logs')
+endpoint_var = current_app.config['LOGGING_ENDPOINT']
+print("current end point is " + str(endpoint_var))
+
+bp = Blueprint('logging_rest_service', __name__, url_prefix=endpoint_var)
 
 @bp.route('/', methods=['POST'])
 def post_events():
