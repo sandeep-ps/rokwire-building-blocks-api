@@ -6,7 +6,6 @@ WORKDIR /app
 COPY . /app/loggingservice/
 RUN pip install -r /app/loggingservice/requirements.txt
 
-ENV LOGGING_MONGO_URL="" \
-    LOGGING_ENDPOINT=""
+ENV LOGGING_MONGO_URL=""
 
 CMD ["gunicorn", "loggingservice:create_app()", "--config", "/app/loggingservice/gunicorn.config.py"]

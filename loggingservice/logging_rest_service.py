@@ -9,10 +9,7 @@ logging.basicConfig(format='%(asctime)-15s %(levelname)-7s [%(threadName)-10s] :
                     level=logging.INFO)
 __logger = logging.getLogger("loggingservice")
 
-endpoint_var = current_app.config['LOGGING_ENDPOINT']
-print("current end point is " + str(endpoint_var))
-
-bp = Blueprint('logging_rest_service', __name__, url_prefix=endpoint_var)
+bp = Blueprint('logging_rest_service', __name__, url_prefix='/logs')
 
 @bp.route('/', methods=['POST'])
 def post_events():
