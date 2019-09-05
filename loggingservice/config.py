@@ -4,3 +4,5 @@ LOGGING_MONGO_URL = os.getenv('LOGGING_MONGO_URL', 'mongodb://localhost:27017')
 LOGGING_DB_NAME="loggingdb"
 LOGGING_COLL_NAME="logs"
 LOGGING_URL_PREFIX = os.getenv('LOGGING_URL_PREFIX', '/logs')
+SPLUNK_ENDPOINT = os.getenv('SPLUNK_ENDPOINT', '')
+SPLUNK_TOKEN = os.getenv('SPLUNK_TOKEN', '')

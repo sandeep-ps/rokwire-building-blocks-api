@@ -11,5 +11,6 @@ RUN wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 
 ENV LOGGING_MONGO_URL=""
 ENV LOGGING_URL_PREFIX="/logs"
+ENV SPLUNK_END_POINT=""
 
 CMD ["gunicorn", "loggingservice:create_app()", "--config", "/app/loggingservice/gunicorn.config.py"]

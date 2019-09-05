@@ -17,6 +17,8 @@ pip install -r requirements.txt
 cd rokwire-building-blocks-api
 export FLASK_APP=loggingservice
 export FLASK_ENV=development
+export SPLUNK_ENDPOINT=<ENDPOINT_URL>
+export SPLUCK_TOKEN=<SPLUNK_TOKEN>
 flask run
 ```
 and the Logging Building Block should be running at localhost at port 5000 (http://localhost:5000/logs).
@@ -26,7 +28,7 @@ The detailed API information is in rokwire.yaml in the OpenAPI Spec 3.0 format.
 ```
 cd loggingservice
 ./docker.sh
-docker run --rm --name logging -e LOGGING_MONGO_URL=mongodb://mongodb_ip_address:mongodb_port -e LOGGING_URL_PREFIX=<url_prefix_starting_with_slash> -p 5000:5000 rokwire/logging-building-block
+docker run --rm --name logging -e LOGGING_MONGO_URL=mongodb://mongodb_ip_address:mongodb_port -e LOGGING_URL_PREFIX=<url_prefix_starting_with_slash> -e SPLUNK_ENDPOINT=<splunk_endpoint_url> -e SPLUNK_TOKEN=<splunk_auth_token> -p 5000:5000 rokwire/logging-building-block
 ```
 You can edit config.py to specify mongo database name, collection name, and a URL prefix.
 ```
@@ -42,7 +44,7 @@ Let us use ```curl``` command to post two sample events to the Events Building B
 
 ```
 curl -d '{
-            "timestamp": "2019-06-01T10:15:23Z",
+            "timestamp": "2019-09-05T20:26:02.334Z",
             "uuid": "56fe224b-3600-4b66-ac8d-5d2906e19fc61",
             "os": "ios",
             "osVersion": "10.1.4",

@@ -1,8 +1,9 @@
 import logging
 import flask
+import requests
 
 from .db import get_db
-from .config import LOGGING_COLL_NAME, LOGGING_URL_PREFIX
+from .config import LOGGING_COLL_NAME, LOGGING_URL_PREFIX, SPLUNK_ENDPOINT, SPLUNK_TOKEN
 from flask import Blueprint, request, make_response, abort
 from time import gmtime
 
@@ -27,6 +28,7 @@ def post_events():
         __logger.exception(ex)
         abort(400)
 
+    # post logs to mongodb
     try:
         db = get_db()
 
@@ -47,8 +49,29 @@ def post_events():
         __logger.exception(ex)
         abort(500)
 
+    # post logs to splunk
+    try:
+        # struected as JSON
+        structured_json = generate_post_data_structured_json(in_json)
+
+        # this is original curl command in UOFI page
+        #curl - k - H "Authorization: Splunk $TOKEN" $ENDPOINT - d "$(generate_post_data_structured_json)"
+
+        headers = {'Authorization':'Splunk %s' %(SPLUNK_TOKEN)}
+        r = requests.post(SPLUNK_ENDPOINT, data=structured_json, headers=headers)
+    except Exception as ex:
+        __logger.exception(ex)
+        abort(500)
+
     return success_response_only_status_code(200, "logging information successfully posted")
 
+def generate_post_data_structured_json(log_json):
+    json_structured = {
+        'sourcetype': "illinois:rokwire:app",
+        'event': log_json
+    }
+
+    return json_structured
 
 def success_response_only_status_code(status_code, msg):
     message = {
