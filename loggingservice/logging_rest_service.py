@@ -1,9 +1,11 @@
 import logging
 import flask
 import requests
+import sys
+import json
 
-from .db import get_db
-from .config import LOGGING_COLL_NAME, LOGGING_URL_PREFIX, SPLUNK_ENDPOINT, SPLUNK_TOKEN
+from loggingservice.db import get_db
+from loggingservice.config import LOGGING_COLL_NAME, LOGGING_URL_PREFIX, SPLUNK_ENDPOINT, SPLUNK_TOKEN
 from flask import Blueprint, request, make_response, abort
 from time import gmtime
 
@@ -18,25 +20,26 @@ bp = Blueprint('logging_rest_service', __name__, url_prefix=LOGGING_URL_PREFIX)
 @bp.route('/', methods=['POST'])
 def post_events():
     in_json = None
-    try:
-        in_json = request.get_json(force=True)
-        if not isinstance(in_json, list):
-            msg = "request json is not a list"
-            __logger.info(msg)
-            return server_400_error(msg)
-    except Exception as ex:
-        __logger.exception(ex)
-        abort(400)
+    # revive following line, if the input json needs to be checked if it is a list or not
+    # try:
+    #     in_json = request.get_json(force=True)
+    #     if not isinstance(in_json, list):
+    #         msg = "request json is not a list"
+    #         __logger.info(msg)
+    #         return server_400_error(msg)
+    # except Exception as ex:
+    #     __logger.exception(ex)
+    #     abort(400)
 
     # post logs to mongodb
     try:
         db = get_db()
 
-        # # for local test
-        # from pymongo import MongoClient
-        # client = MongoClient("mongodb://localhost:27017", connect=False)
-        # db = client["loggingdb"]
-        # LOGGING_COLL_NAME = "logs"
+        # for local test
+        from pymongo import MongoClient
+        client = MongoClient("mongodb://localhost:27017", connect=False)
+        db = client["loggingdb"]
+        LOGGING_COLL_NAME = "logs"
 
         # Insert log entries to database.
         if in_json is not None:
@@ -44,24 +47,28 @@ def post_events():
 
             msg = "[POST]: logging record posted."
             __logger.info(msg)
+            print('Hello world!', flush=True)
+            print(msg)
 
     except Exception as ex:
         __logger.exception(ex)
         abort(500)
 
-    # post logs to splunk
-    try:
-        # struected as JSON
-        structured_json = generate_post_data_structured_json(in_json)
-
-        # this is original curl command in UOFI page
-        #curl - k - H "Authorization: Splunk $TOKEN" $ENDPOINT - d "$(generate_post_data_structured_json)"
-
-        headers = {'Authorization':'Splunk %s' %(SPLUNK_TOKEN)}
-        r = requests.post(SPLUNK_ENDPOINT, data=structured_json, headers=headers)
-    except Exception as ex:
-        __logger.exception(ex)
-        abort(500)
+    # # post logs to splunk
+    # try:
+    #     # struected as JSON
+    #     structured_json = generate_post_data_structured_json(in_json)
+    #     print(type(structured_json))
+    #
+    #     # this is original curl command in UOFI page
+    #     #curl - k - H "Authorization: Splunk $TOKEN" $ENDPOINT - d "$(generate_post_data_structured_json)"
+    #
+    #     headers = {'Authorization':'Splunk %s' %(SPLUNK_TOKEN)}
+    #     print(headers)
+    #     r = requests.post(SPLUNK_ENDPOINT, data=structured_json, headers=headers, verify=False)
+    # except Exception as ex:
+    #     __logger.exception(ex)
+    #     abort(500)
 
     return success_response_only_status_code(200, "logging information successfully posted")
 
@@ -71,7 +78,7 @@ def generate_post_data_structured_json(log_json):
         'event': log_json
     }
 
-    return json_structured
+    return json.loads(json.dumps(json_structured))
 
 def success_response_only_status_code(status_code, msg):
     message = {
@@ -150,5 +157,5 @@ def server_500_error(error=None):
     resp.status_code = 500
     return resp
 
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
